@@ -39,7 +39,6 @@ import {
 } from '@/loader/main';
 import { refreshMenu, setApplicationMenu } from '@/menu';
 import musicPlayerCss from '@/music-player.css?inline';
-import { defaultAuthProxyConfig } from '@/plugins/auth-proxy-adapter/config';
 import { fileExists, injectCSS, injectCSSAsFile } from '@/plugins/utils/main';
 import { restart, setupAppControls } from '@/providers/app-controls';
 import {
@@ -140,9 +139,8 @@ if (is.linux()) {
   );
 }
 if (is.windows() && !disableHardwareAcceleration) {
-  app.commandLine.appendSwitch(
-    'disable-direct-composition-video-overlays',
-  );
+  app.commandLine.appendSwitch('use-gl', 'angle');
+  app.commandLine.appendSwitch('use-angle', 'gl');
 }
 if (disableHardwareAcceleration) {
   if (is.dev()) console.log('Disabling hardware acceleration');
@@ -152,25 +150,11 @@ if (disableHardwareAcceleration) {
 // Apply disabled features
 app.commandLine.appendSwitch('disable-features', disabledFeatures.join(','));
 
-if (config.get('options.proxy')) {
-  const authProxyEnabled = await config.plugins.isEnabled('auth-proxy-adapter');
+const proxy = config.get('options.proxy');
 
-  let proxyToUse = '';
-  if (authProxyEnabled) {
-    // Use proxy from Auth-Proxy-Adapter plugin
-    const authProxyConfig = deepmerge(
-      defaultAuthProxyConfig,
-      config.get('plugins.auth-proxy-adapter') ?? {},
-    ) as typeof defaultAuthProxyConfig;
-
-    const { hostname, port } = authProxyConfig;
-    proxyToUse = `socks5://${hostname}:${port}`;
-  } else if (config.get('options.proxy')) {
-    // Use global proxy settings
-    proxyToUse = config.get('options.proxy');
-  }
-  console.log(LoggerPrefix, `Using proxy: ${proxyToUse}`);
-  app.commandLine.appendSwitch('proxy-server', proxyToUse);
+if (proxy) {
+  console.log(LoggerPrefix, `Using proxy: ${proxy}`);
+  app.commandLine.appendSwitch('proxy-server', proxy);
 }
 
 // Adds debug features like hotkeys for triggering dev tools and reload
@@ -325,12 +309,12 @@ function initTheme(win: BrowserWindow) {
     }
   }
 
-  win.webContents.once('did-finish-load', () => {
-    if (is.dev()) {
-      console.debug(LoggerPrefix, t('main.console.did-finish-load.dev-tools'));
-      win.webContents.openDevTools();
-    }
-  });
+  // win.webContents.once('did-finish-load', () => {
+  //   if (is.dev()) {
+  //     console.debug(LoggerPrefix, t('main.console.did-finish-load.dev-tools'));
+  //     win.webContents.openDevTools();
+  //   }
+  // });
 }
 
 async function createMainWindow() {
@@ -436,6 +420,27 @@ async function createMainWindow() {
   if (config.get('options.alwaysOnTop')) {
     win.setAlwaysOnTop(true);
   }
+  // TEMP: force window into a known visible state
+  if (win.isMaximized()) {
+    win.unmaximize();
+  }
+
+  win.setBounds({
+    x: 100,
+    y: 100,
+    width: 1200,
+    height: 700,
+  });
+
+  win.show();
+  win.focus();
+
+  console.log('[DEBUG WINDOW]', {
+    visible: win.isVisible(),
+    minimized: win.isMinimized(),
+    maximized: win.isMaximized(),
+    bounds: win.getBounds(),
+  });
 
   const urlToLoad = config.get('options.resumeOnStart')
     ? config.get('url')

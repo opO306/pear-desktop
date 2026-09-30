@@ -1,9 +1,4 @@
-import { blockers } from '@/plugins/do-not-track/types';
-import { DefaultPresetList, type Preset } from '@/plugins/downloader/types';
-
 import { defaultConfig as defaults } from './defaults';
-
-import type { TrackerBlockerConfig } from '@/plugins/do-not-track';
 import type { SyncedLyricsPluginConfig } from '@/plugins/synced-lyrics/types';
 
 // HACK: electron-store is ESM, but rolldown has a bug that prevents it from being imported properly in CommonJS context, so we have to use require here
@@ -20,22 +15,13 @@ export type IStore = InstanceType<
 >;
 
 const migrations = {
-  '>=3.12.0'(store: IStore) {
-    const blockerConfig = store.get('plugins.adblocker') as TrackerBlockerConfig;
-    if (blockerConfig) {
-      if (!Object.values(blockers).includes(blockerConfig.blocker)) {
-        blockerConfig.blocker = blockers.InPlayer;
-      }
-      store.set('plugins.do-not-track', blockerConfig);
-      store.delete('plugins.adblocker');
-    }
-  },
+
   '>=3.10.0'(store: IStore) {
     const lyricGeniusConfig = store.get('plugins.lyrics-genius') as
       | {
-          enabled?: boolean;
-          romanizedLyrics?: boolean;
-        }
+        enabled?: boolean;
+        romanizedLyrics?: boolean;
+      }
       | undefined;
 
     if (lyricGeniusConfig) {
@@ -68,18 +54,18 @@ const migrations = {
     if (lastfmConfig) {
       let scrobblerConfig = store.get('plugins.scrobbler') as
         | {
-            enabled?: boolean;
-            scrobblers?: {
-              lastfm?: {
-                enabled?: boolean;
-                token?: string;
-                sessionKey?: string;
-                apiRoot?: string;
-                apiKey?: string;
-                secret?: string;
-              };
+          enabled?: boolean;
+          scrobblers?: {
+            lastfm?: {
+              enabled?: boolean;
+              token?: string;
+              sessionKey?: string;
+              apiRoot?: string;
+              apiKey?: string;
+              secret?: string;
             };
-          }
+          };
+        }
         | undefined;
 
       if (!scrobblerConfig) {
@@ -138,31 +124,7 @@ const migrations = {
       store.delete('plugins.discord.listenAlong');
     }
   },
-  '>=2.1.0'(store: IStore) {
-    const originalPreset = store.get('plugins.downloader.preset') as
-      | string
-      | undefined;
-    if (originalPreset) {
-      if (originalPreset !== 'opus') {
-        store.set('plugins.downloader.selectedPreset', 'Custom');
-        store.set('plugins.downloader.customPresetSetting', {
-          extension: 'mp3',
-          ffmpegArgs:
-            (store.get('plugins.downloader.ffmpegArgs') as string[]) ??
-            DefaultPresetList['mp3 (256kbps)'].ffmpegArgs,
-        } satisfies Preset);
-      } else {
-        store.set('plugins.downloader.selectedPreset', 'Source');
-        store.set('plugins.downloader.customPresetSetting', {
-          extension: null,
-          ffmpegArgs:
-            (store.get('plugins.downloader.ffmpegArgs') as string[]) ?? [],
-        } satisfies Preset);
-      }
-      store.delete('plugins.downloader.preset');
-      store.delete('plugins.downloader.ffmpegArgs');
-    }
-  },
+
   '>=1.20.0'(store: IStore) {
     store.delete('plugins.visualizer'); // default value is now in the plugin
 
@@ -205,13 +167,13 @@ const migrations = {
   '>=1.12.0'(store: IStore) {
     const options = store.get('plugins.shortcuts') as
       | Record<
-          string,
-          | {
-              action: string;
-              shortcut: unknown;
-            }[]
-          | Record<string, unknown>
-        >
+        string,
+        | {
+          action: string;
+          shortcut: unknown;
+        }[]
+        | Record<string, unknown>
+      >
       | undefined;
     if (options) {
       let updated = false;

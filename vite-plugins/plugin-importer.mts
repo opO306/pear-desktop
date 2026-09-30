@@ -14,6 +14,8 @@ const enabledPlugins = new Set([
   'shortcuts',
   'discord',
   'synced-lyrics',
+  'performance-improvement',
+  'album-color-theme',
 ]);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const globalProject = new Project({

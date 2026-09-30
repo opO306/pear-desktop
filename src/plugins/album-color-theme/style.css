@@ -34,10 +34,7 @@ yt-page-navigation-progress {
 
 /* fix blur navigation bar */
 
-ytmusic-app-layout
-  > [slot='player-page']:not([is-mweb-modernization-enabled]):not(
-    :has(ytmusic-player[player-ui-state='FULLSCREEN'])
-  ) {
+ytmusic-app-layout>[slot='player-page']:not([is-mweb-modernization-enabled]):not( :has(ytmusic-player[player-ui-state='FULLSCREEN'])) {
   padding-top: 90px;
   margin-top: calc(-90px + var(--menu-bar-height, 0px)) !important;
 }
@@ -79,13 +76,11 @@ ytmusic-fullbleed-thumbnail-renderer img {
 }
 
 .background-gradient.style-scope,
-ytmusic-app-layout[is-bauhaus-sidenav-enabled]
-  #mini-guide-background.ytmusic-app-layout {
+ytmusic-app-layout[is-bauhaus-sidenav-enabled] #mini-guide-background.ytmusic-app-layout {
   background: var(--ytmusic-background) !important;
 }
 
-ytmusic-browse-response[has-background]:not([disable-gradient])
-  .background-gradient.ytmusic-browse-response {
+ytmusic-browse-response[has-background]:not([disable-gradient]) .background-gradient.ytmusic-browse-response {
   background: unset !important;
 }
 
@@ -98,13 +93,15 @@ ytmusic-search-box[is-bauhaus-sidenav-enabled] {
 }
 
 .seekbar-theme #progress-bar.ytmusic-player-bar {
-  --paper-slider-active-color: linear-gradient(
-    to right,
-    var(--paper-progress-active-color-1) 80%,
-    var(--paper-progress-active-color-2) 100%
-  ) !important;
+  --paper-slider-active-color: linear-gradient(to right,
+      var(--paper-progress-active-color-1) 80%,
+      var(--paper-progress-active-color-2) 100%) !important;
   --paper-slider-knob-color: var(--paper-progress-active-color-1) !important;
-  --paper-slider-knob-start-color: var(
-    --paper-progress-active-color-2
-  ) !important;
+  --paper-slider-knob-start-color: var(--paper-progress-active-color-2) !important;
+}
+
+/* 상단 네비게이션도 항상 앨범 컬러 사용 */
+#nav-bar-background.ytmusic-app-layout {
+  opacity: 1 !important;
+  background: var(--ytmusic-background) !important;
 }
