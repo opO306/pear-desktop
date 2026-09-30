@@ -11,12 +11,20 @@ export function getPlugins() {
   return store.get('plugins') as Record<string, PluginConfig>;
 }
 
-export async function isEnabled(plugin: string) {
+export async function isEnabled(pluginName: string) {
+  const plugins = await allPlugins();
+  const plugin = plugins[pluginName];
+
+  if (!plugin) {
+    return false;
+  }
+
   const pluginConfig = deepmerge(
-    (await allPlugins())[plugin]?.config ?? { enabled: false },
-    (store.get('plugins') as Record<string, PluginConfig>)[plugin] ?? {},
+    plugin.config ?? { enabled: false },
+    (store.get('plugins') as Record<string, PluginConfig>)[pluginName] ?? {},
   );
-  return pluginConfig !== undefined && pluginConfig.enabled;
+
+  return pluginConfig.enabled === true;
 }
 
 /**

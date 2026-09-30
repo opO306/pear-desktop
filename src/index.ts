@@ -139,7 +139,11 @@ if (is.linux()) {
     'com.github.th-ch.\u0079\u006f\u0075\u0074\u0075\u0062\u0065\u002d\u006d\u0075\u0073\u0069\u0063',
   );
 }
-
+if (is.windows() && !disableHardwareAcceleration) {
+  app.commandLine.appendSwitch(
+    'disable-direct-composition-video-overlays',
+  );
+}
 if (disableHardwareAcceleration) {
   if (is.dev()) console.log('Disabling hardware acceleration');
   app.disableHardwareAcceleration();
@@ -372,10 +376,10 @@ async function createMainWindow() {
       ...(isTesting()
         ? undefined
         : {
-            // Sandbox is only enabled in tests for now
-            // See https://www.electronjs.org/docs/latest/tutorial/sandbox#preload-scripts
-            sandbox: false,
-          }),
+          // Sandbox is only enabled in tests for now
+          // See https://www.electronjs.org/docs/latest/tutorial/sandbox#preload-scripts
+          sandbox: false,
+        }),
     },
     ...decorations,
   };
@@ -503,7 +507,7 @@ async function createMainWindow() {
         ...defaultTitleBarOverlayOptions,
         height: Math.floor(
           defaultTitleBarOverlayOptions.height! *
-            win.webContents.getZoomFactor(),
+          win.webContents.getZoomFactor(),
         ),
       });
     }

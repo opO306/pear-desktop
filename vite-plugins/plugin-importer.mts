@@ -10,6 +10,11 @@ import { Platform } from '../src/types/plugins';
 const kebabToCamel = (text: string) =>
   text.replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase());
 
+const enabledPlugins = new Set([
+  'shortcuts',
+  'discord',
+  'synced-lyrics',
+]);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const globalProject = new Project({
   tsConfigFilePath: resolve(__dirname, '..', 'tsconfig.json'),
@@ -27,21 +32,24 @@ export const pluginVirtualModuleGenerator = (
     'src/plugins/*.{js,ts,jsx,tsx}',
     '!src/plugins/utils/**/*',
     '!src/plugins/utils/*',
-  ]).map((path) => {
-    let name = basename(path);
-    if (
-      name === 'index.ts' ||
-      name === 'index.js' ||
-      name === 'index.jsx' ||
-      name === 'index.tsx'
-    ) {
-      name = basename(resolve(path, '..'));
-    }
+  ])
+    .map((path) => {
+      let name = basename(path);
 
-    name = name.replace(extname(name), '');
+      if (
+        name === 'index.ts' ||
+        name === 'index.js' ||
+        name === 'index.jsx' ||
+        name === 'index.tsx'
+      ) {
+        name = basename(resolve(path, '..'));
+      }
 
-    return { name, path };
-  });
+      name = name.replace(extname(name), '');
+
+      return { name, path };
+    })
+    .filter(({ name }) => enabledPlugins.has(name));
 
   const src = globalProject.createSourceFile(
     'vm:pluginIndexes',
