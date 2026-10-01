@@ -105,3 +105,13 @@ ytmusic-search-box[is-bauhaus-sidenav-enabled] {
   opacity: 1 !important;
   background: var(--ytmusic-background) !important;
 }
+
+/*
+ * 상단바 아래 검은 띠 제거
+ * 상단바와 본문 사이에 배경이 칠해지지 않은 틈이 있어서, 맨 뒤의 검은 바탕이 그대로 비쳐 보였다.
+ * 맨 뒤 바탕도 테마 색으로 칠해서 틈이 있어도 티가 나지 않게 한다.
+ */
+html body,
+html body ytmusic-app {
+  background: var(--ytmusic-background) !important;
+}
