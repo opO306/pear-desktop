@@ -376,8 +376,10 @@ body.pear-lyrics-only .text-lyrics {
 }
 
 /*
- * 사이드바 숨기기 (Alt+S)
- * 사이드바(홈/둘러보기/보관함)와, 본문이 그 폭만큼 비켜 있도록 자리를 차지하던 빈 칸(spacer)을 함께 없앤다.
+ * 사이드바 숨기기 + 가사 영역 넓히기 (Alt+S)
+ * 플레이어 화면은 사이드바와 상관없이 가운데 정렬이라 사이드바만 숨겨서는 가사 자리가 늘지 않는다.
+ * 그래서 사이드바(와 본문이 비켜 있던 빈 칸)를 숨기면서, 가사 패널(#side-panel)을 넓게 잡는다.
+ * 앨범 이미지 쪽(#main-panel)은 남는 자리만 쓴다. 가사 전용 모드(Alt+L)가 켜져 있으면 그쪽이 우선한다.
  */
 body.pear-sidebar-hidden #mini-guide-background,
 body.pear-sidebar-hidden #mini-guide,
@@ -385,4 +387,10 @@ body.pear-sidebar-hidden #mini-guide-spacer,
 body.pear-sidebar-hidden #guide-spacer,
 body.pear-sidebar-hidden #guide-wrapper {
   display: none !important;
+}
+
+body.pear-sidebar-hidden:not(.pear-lyrics-only) #side-panel.side-panel.ytmusic-player-page {
+  flex: 0 0 var(--pear-wide-lyrics-width, 56%) !important;
+  width: var(--pear-wide-lyrics-width, 56%) !important;
+  max-width: none !important;
 }

@@ -46,7 +46,7 @@ const readSidebarHidden = () => {
   }
 };
 
-/** 왼쪽 사이드바(홈/둘러보기/보관함)를 숨기거나 보인다. 선택은 저장돼서 재시작해도 유지된다 */
+/** 왼쪽 사이드바(홈/둘러보기/보관함)를 숨기고 가사 영역을 넓히거나, 원래대로 되돌린다. 선택은 저장돼서 재시작해도 유지된다 */
 const toggleSidebar = () => {
   const hidden = !document.body.classList.contains(SIDEBAR_HIDDEN_CLASS);
   document.body.classList.toggle(SIDEBAR_HIDDEN_CLASS, hidden);
@@ -57,7 +57,9 @@ const toggleSidebar = () => {
     // 저장 실패해도 이번 실행에서는 유지된다
   }
 
-  showToast(hidden ? '사이드바 숨김 (Alt+S로 다시 표시)' : '사이드바 표시');
+  showToast(
+    hidden ? '사이드바 숨김 + 가사 넓게 (Alt+S로 되돌리기)' : '사이드바 표시',
+  );
 };
 
 /** 최대 tries번(100ms 간격) 기다린다. 끝까지 없으면 null (무한히 돌지 않는다) */
