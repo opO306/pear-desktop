@@ -171,3 +171,33 @@ html body,
 html body ytmusic-app {
   background: var(--ytmusic-background) !important;
 }
+
+/*
+ * 가사 영역 위아래를 배경색으로 부드럽게 덮어서 가사가 뚝 끊겨 보이지 않게 한다.
+ * (mask 대신 정적인 그라데이션 덮개를 써서 스크롤할 때 추가 비용이 들지 않는다)
+ */
+#synced-lyrics-container {
+  position: relative;
+}
+
+#synced-lyrics-container::before,
+#synced-lyrics-container::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#synced-lyrics-container::before {
+  top: 0;
+  height: 28px;
+  background: linear-gradient(to bottom, var(--ytmusic-background), transparent);
+}
+
+#synced-lyrics-container::after {
+  bottom: 0;
+  height: 90px;
+  background: linear-gradient(to top, var(--ytmusic-background), transparent);
+}

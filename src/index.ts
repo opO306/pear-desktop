@@ -328,12 +328,6 @@ function initTheme(win: BrowserWindow) {
     }
   }
 
-  // win.webContents.once('did-finish-load', () => {
-  //   if (is.dev()) {
-  //     console.debug(LoggerPrefix, t('main.console.did-finish-load.dev-tools'));
-  //     win.webContents.openDevTools();
-  //   }
-  // });
 }
 
 async function createMainWindow() {
@@ -439,28 +433,6 @@ async function createMainWindow() {
   if (config.get('options.alwaysOnTop')) {
     win.setAlwaysOnTop(true);
   }
-  // TEMP: force window into a known visible state
-  if (win.isMaximized()) {
-    win.unmaximize();
-  }
-
-  win.setBounds({
-    x: 100,
-    y: 100,
-    width: 1200,
-    height: 700,
-  });
-
-  win.show();
-  win.focus();
-
-  console.log('[DEBUG WINDOW]', {
-    visible: win.isVisible(),
-    minimized: win.isMinimized(),
-    maximized: win.isMaximized(),
-    bounds: win.getBounds(),
-  });
-
   const urlToLoad = config.get('options.resumeOnStart')
     ? config.get('url')
     : config.defaultConfig.url;
