@@ -138,7 +138,12 @@ if (is.linux()) {
     'com.github.th-ch.\u0079\u006f\u0075\u0074\u0075\u0062\u0065\u002d\u006d\u0075\u0073\u0069\u0063',
   );
 }
-if (is.windows() && !disableHardwareAcceleration) {
+// PEAR_NO_ANGLE=1 이면 아래 그래픽 설정을 건너뛴다 (CPU/GPU 비교 테스트용)
+if (
+  is.windows() &&
+  !disableHardwareAcceleration &&
+  !process.env.PEAR_NO_ANGLE
+) {
   app.commandLine.appendSwitch('use-gl', 'angle');
   app.commandLine.appendSwitch('use-angle', 'gl');
 }
