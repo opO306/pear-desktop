@@ -106,6 +106,11 @@ ytmusic-search-box[is-bauhaus-sidenav-enabled] {
   background: var(--ytmusic-background) !important;
 }
 
+/* 맨 위 제목줄(in-app-menu)도 상단바와 같은 앨범 컬러 사용 */
+:root {
+  --titlebar-background-color: var(--ytmusic-background) !important;
+}
+
 /*
  * 상단바 아래 검은 띠 제거
  * 상단바와 본문 사이에 배경이 칠해지지 않은 틈이 있어서, 맨 뒤의 검은 바탕이 그대로 비쳐 보였다.
