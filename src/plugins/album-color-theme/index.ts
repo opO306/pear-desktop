@@ -29,33 +29,44 @@ type Renderer = {
   onConfigChange(newConfig: Config): void;
 };
 
-/** 스크롤하거나 스크롤 가능한 영역 위에 마우스가 있을 때만 html에 클래스를 잠깐 붙인다 (CSS가 이 클래스로 스크롤바를 보여 줌) */
+/**
+ * 스크롤 중이거나 마우스가 올라간 스크롤 영역에만 클래스를 잠깐 붙인다 (CSS가 이 클래스로 스크롤바를 보여 줌).
+ * 클래스는 해당 스크롤 요소에만 붙여서, 다른 요소의 스타일이 다시 계산되지 않게 한다.
+ */
 const startAutoHideScrollbar = () => {
   const root = document.documentElement;
-  let hideTimer: number | undefined;
+  const timers = new Map<Element, number>();
   let lastMove = 0;
 
-  const show = () => {
-    root.classList.add(SCROLLBAR_ACTIVE_CLASS);
-    window.clearTimeout(hideTimer);
-    hideTimer = window.setTimeout(
-      () => root.classList.remove(SCROLLBAR_ACTIVE_CLASS),
-      SCROLLBAR_HIDE_DELAY,
+  const show = (el: Element) => {
+    el.classList.add(SCROLLBAR_ACTIVE_CLASS);
+    window.clearTimeout(timers.get(el));
+    timers.set(
+      el,
+      window.setTimeout(() => {
+        el.classList.remove(SCROLLBAR_ACTIVE_CLASS);
+        timers.delete(el);
+      }, SCROLLBAR_HIDE_DELAY),
     );
   };
 
-  const isScrollable = (target: EventTarget | null) => {
+  const findScrollable = (target: EventTarget | null) => {
     let el = target instanceof Element ? target : null;
     while (el && el !== root) {
       if (
         el.scrollHeight > el.clientHeight + 1 &&
         /auto|scroll/.test(getComputedStyle(el).overflowY)
       ) {
-        return true;
+        return el;
       }
       el = el.parentElement;
     }
-    return false;
+    return null;
+  };
+
+  const onScroll = (event: Event) => {
+    // 문서 전체가 스크롤되면 target이 document이다
+    show(event.target instanceof Element ? event.target : root);
   };
 
   const onMouseMove = (event: MouseEvent) => {
@@ -63,18 +74,22 @@ const startAutoHideScrollbar = () => {
     if (now - lastMove < 150) return;
     lastMove = now;
 
-    if (isScrollable(event.target)) show();
+    const scrollable = findScrollable(event.target);
+    if (scrollable) show(scrollable);
   };
 
   // scroll 이벤트는 버블링되지 않으므로 capture로 모든 스크롤 영역을 감지한다
-  document.addEventListener('scroll', show, true);
+  document.addEventListener('scroll', onScroll, true);
   document.addEventListener('mousemove', onMouseMove, true);
 
   return () => {
-    document.removeEventListener('scroll', show, true);
+    document.removeEventListener('scroll', onScroll, true);
     document.removeEventListener('mousemove', onMouseMove, true);
-    window.clearTimeout(hideTimer);
-    root.classList.remove(SCROLLBAR_ACTIVE_CLASS);
+    for (const [el, timer] of timers) {
+      window.clearTimeout(timer);
+      el.classList.remove(SCROLLBAR_ACTIVE_CLASS);
+    }
+    timers.clear();
   };
 };
 
