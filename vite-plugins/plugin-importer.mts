@@ -16,6 +16,7 @@ const enabledPlugins = new Set([
   'synced-lyrics',
   'album-color-theme',
   'in-app-menu',
+  'scrobbler',
 ]);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const globalProject = new Project({

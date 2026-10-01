@@ -4,6 +4,7 @@ import { type VirtualizerHandle } from 'virtua/solid';
 import { type LineLyrics } from '@/plugins/synced-lyrics/types';
 
 import { _ytAPI } from '..';
+import { getOffsetMs } from '../offset';
 import { config, currentTime } from '../renderer';
 import {
   canonicalize,
@@ -38,7 +39,7 @@ const EmptyLine = (props: SyncedLineProps) => {
     <div
       class={`synced-line ${props.status}`}
       onClick={() => {
-        _ytAPI?.seekTo((props.line.timeInMs + 10) / 1000);
+        _ytAPI?.seekTo((props.line.timeInMs + 10 + getOffsetMs()) / 1000);
       }}
     >
       <div class="description ytmusic-description-shelf-renderer" dir="auto">
@@ -108,7 +109,7 @@ export const SyncedLine = (props: SyncedLineProps) => {
       <div
         class={`synced-line ${props.status}`}
         onClick={() => {
-          _ytAPI?.seekTo((props.line.timeInMs + 10) / 1000);
+          _ytAPI?.seekTo((props.line.timeInMs + 10 + getOffsetMs()) / 1000);
         }}
       >
         <div class="description ytmusic-description-shelf-renderer" dir="auto">

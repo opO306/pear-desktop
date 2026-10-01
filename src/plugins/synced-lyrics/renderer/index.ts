@@ -1,6 +1,8 @@
 import { createRenderer } from '@/utils';
 import { waitForElement } from '@/utils/wait-for-element';
 
+import { startHotkeys } from './hotkeys';
+import { getOffsetMs, setOffsetVideoId } from './offset';
 import { disposeReactiveRoot } from './reactive-root';
 import { setConfig, setCurrentTime } from './renderer';
 import { fetchLyrics } from './store';
@@ -39,6 +41,7 @@ export const renderer = createRenderer<
     observer?: MutationObserver;
     videoDataChange: () => Promise<void>;
     updateTimestampInterval?: NodeJS.Timeout | string | number;
+    stopHotkeys?: () => void;
   },
   SyncedLyricsPluginConfig
 >({
@@ -69,9 +72,14 @@ export const renderer = createRenderer<
     await this.videoDataChange();
   },
   async videoDataChange() {
+    setOffsetVideoId(_ytAPI?.getPlayerResponse()?.videoDetails?.videoId ?? '');
+
     if (!this.updateTimestampInterval) {
       this.updateTimestampInterval = setInterval(
-        () => setCurrentTime((_ytAPI?.getCurrentTime() ?? 0) * 1000),
+        () =>
+          setCurrentTime(
+            (_ytAPI?.getCurrentTime() ?? 0) * 1000 - getOffsetMs(),
+          ),
         100,
       );
     }
@@ -95,6 +103,8 @@ export const renderer = createRenderer<
     netFetch = ctx.ipc.invoke.bind(ctx.ipc, 'synced-lyrics:fetch');
 
     loadLyricsFont();
+    this.stopHotkeys?.();
+    this.stopHotkeys = startHotkeys();
 
     setConfig(await ctx.getConfig());
 
@@ -104,6 +114,7 @@ export const renderer = createRenderer<
   },
 
   stop() {
+    this.stopHotkeys?.();
     document.getElementById(LYRICS_FONT_LINK_ID)?.remove();
     disposeReactiveRoot();
   },
