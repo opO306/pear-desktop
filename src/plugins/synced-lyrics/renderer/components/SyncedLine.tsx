@@ -6,6 +6,7 @@ import { type LineLyrics } from '@/plugins/synced-lyrics/types';
 import { _ytAPI } from '..';
 import { getOffsetMs } from '../offset';
 import { config, currentTime } from '../renderer';
+import { translationOf } from '../translation';
 import {
   canonicalize,
   convertChineseCharacter,
@@ -104,6 +105,12 @@ export const SyncedLine = (props: SyncedLineProps) => {
     });
   });
 
+  const translated = createMemo(() => {
+    if (!config()?.translateEnabled) return undefined;
+    const result = translationOf(text());
+    return result && result !== text() ? result : undefined;
+  });
+
   return (
     <Show fallback={<EmptyLine {...props} />} when={text()}>
       <div
@@ -181,6 +188,12 @@ export const SyncedLine = (props: SyncedLineProps) => {
                     );
                   }}
                 </For>
+              </span>
+            </Show>
+
+            <Show when={translated()}>
+              <span class="translation">
+                <span>{translated()}</span>
               </span>
             </Show>
           </div>

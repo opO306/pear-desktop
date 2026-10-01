@@ -8,7 +8,7 @@ const TOAST_DURATION = 1500;
 
 let toastTimer: number | undefined;
 
-const showToast = (text: string) => {
+export const showToast = (text: string) => {
   let el = document.getElementById(TOAST_ID);
   if (!el) {
     el = Object.assign(document.createElement('div'), {
@@ -73,8 +73,9 @@ const toggleLyricsOnly = async () => {
  * 단축키
  *  - [ / ] : 가사를 0.5초 일찍 / 늦게,  \ : 싱크 초기화 (곡별로 저장됨)
  *  - Alt+L : 가사 전용 모드 켜기/끄기
+ *  - T : 가사 번역 켜기/끄기
  */
-export const startHotkeys = () => {
+export const startHotkeys = (options: { onToggleTranslate: () => void }) => {
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey) return;
     if (isTyping(event.composedPath()[0])) return;
@@ -98,6 +99,10 @@ export const startHotkeys = () => {
       case '\\':
         result = changeOffsetMs(null);
         break;
+      case 't':
+      case 'T':
+        options.onToggleTranslate();
+        return;
       default:
         return;
     }

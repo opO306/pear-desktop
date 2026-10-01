@@ -10,6 +10,9 @@ export type SyncedLyricsPluginConfig = {
   showLyricsEvenIfInexact: boolean;
   lineEffect: LineEffect;
   romanization: boolean;
+  /** 가사 아래에 한국어 번역(DeepL)을 보여 줄지 */
+  translateEnabled: boolean;
+  deeplApiKey: string;
   convertChineseCharacter?:
     | 'simplifiedToTraditional'
     | 'traditionalToSimplified'

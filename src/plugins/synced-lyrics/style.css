@@ -341,3 +341,36 @@ body.pear-lyrics-only .text-lyrics {
   transform-origin: 50% 50%;
   padding-left: 0;
 }
+
+/* 가사 번역 (DeepL): 원문 줄 아래에 작게. 선명도는 줄 상태(지나감/현재/다음)를 그대로 따른다 */
+.synced-line .text-lyrics > .translation {
+  color: var(--ytmusic-text-secondary) !important;
+  font-size: calc(var(--lyrics-font-size) * 0.62) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0;
+  line-height: 1.35;
+  margin-top: 0.15em;
+}
+
+/* 재생 바의 번역 켜기/끄기 버튼 */
+.pear-translate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+}
+
+.pear-translate-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pear-translate-button.active {
+  color: #fff;
+}

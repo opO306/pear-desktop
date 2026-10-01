@@ -1,13 +1,20 @@
 import { createRenderer } from '@/utils';
 import { waitForElement } from '@/utils/wait-for-element';
 
-import { startHotkeys } from './hotkeys';
+import { mountTranslateButton } from './components/TranslateButton';
+import { showToast, startHotkeys } from './hotkeys';
 import { getOffsetMs, setOffsetVideoId } from './offset';
 import { disposeReactiveRoot } from './reactive-root';
-import { setConfig, setCurrentTime } from './renderer';
+import { config, setConfig, setCurrentTime } from './renderer';
 import { fetchLyrics } from './store';
+import {
+  resetTranslationBlock,
+  setTranslateIpc,
+  startTranslation,
+} from './translation';
 import { selectors, tabStates } from './utils';
 
+import type { TranslateResult } from '../translate';
 import type { SyncedLyricsPluginConfig } from '../types';
 import type { SongInfo } from '@/providers/song-info';
 import type { RendererContext } from '@/types/contexts';
@@ -42,6 +49,8 @@ export const renderer = createRenderer<
     videoDataChange: () => Promise<void>;
     updateTimestampInterval?: NodeJS.Timeout | string | number;
     stopHotkeys?: () => void;
+    unmountTranslateButton?: () => void;
+    toggleTranslate?: () => Promise<void>;
   },
   SyncedLyricsPluginConfig
 >({
@@ -103,10 +112,43 @@ export const renderer = createRenderer<
     netFetch = ctx.ipc.invoke.bind(ctx.ipc, 'synced-lyrics:fetch');
 
     loadLyricsFont();
-    this.stopHotkeys?.();
-    this.stopHotkeys = startHotkeys();
 
     setConfig(await ctx.getConfig());
+
+    // 가사 번역: 번역은 메인 프로세스(DeepL)에서 하고, 화면에는 결과만 받는다
+    setTranslateIpc(
+      (texts) =>
+        ctx.ipc.invoke('synced-lyrics:translate', texts) as Promise<TranslateResult>,
+    );
+    startTranslation();
+
+    this.toggleTranslate = async () => {
+      const current = config();
+      if (!current) return;
+
+      const next = !current.translateEnabled;
+      setConfig({ ...current, translateEnabled: next });
+      await ctx.setConfig({ translateEnabled: next });
+      if (next) resetTranslationBlock();
+
+      showToast(next ? '가사 번역 켜짐' : '가사 번역 꺼짐');
+    };
+
+    this.stopHotkeys?.();
+    this.stopHotkeys = startHotkeys({
+      onToggleTranslate: () => {
+        this.toggleTranslate?.().catch((error) => console.error(error));
+      },
+    });
+
+    this.unmountTranslateButton?.();
+    mountTranslateButton(() => {
+      this.toggleTranslate?.().catch((error) => console.error(error));
+    })
+      .then((dispose) => {
+        this.unmountTranslateButton = dispose;
+      })
+      .catch((error) => console.error(error));
 
     ctx.ipc.on('peard:update-song-info', (info: SongInfo) => {
       fetchLyrics(info);
@@ -115,6 +157,7 @@ export const renderer = createRenderer<
 
   stop() {
     this.stopHotkeys?.();
+    this.unmountTranslateButton?.();
     document.getElementById(LYRICS_FONT_LINK_ID)?.remove();
     disposeReactiveRoot();
   },

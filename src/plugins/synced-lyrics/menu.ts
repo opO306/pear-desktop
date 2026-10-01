@@ -1,10 +1,18 @@
+import prompt from 'custom-electron-prompt';
+import { dialog, net, type MenuItemConstructorOptions } from 'electron';
+
 import { t } from '@/i18n';
+import promptOptions from '@/providers/prompt-options';
 
 import { providerNames } from './providers';
+import {
+  type FetchLike,
+  fetchUsage,
+  translateErrorMessage,
+} from './translate';
 
 import type { SyncedLyricsPluginConfig } from './types';
 import type { MenuContext } from '@/types/contexts';
-import type { MenuItemConstructorOptions } from 'electron';
 
 export const menu = async (
   ctx: MenuContext<SyncedLyricsPluginConfig>,
@@ -232,6 +240,60 @@ export const menu = async (
           showLyricsEvenIfInexact: item.checked,
         });
       },
+    },
+    {
+      label: '가사 번역 (DeepL)',
+      type: 'submenu',
+      submenu: [
+        {
+          label: '번역 켜기 (플레이어 바의 번역 버튼 / T 키)',
+          type: 'checkbox',
+          checked: config.translateEnabled,
+          click(item) {
+            ctx.setConfig({ translateEnabled: item.checked });
+          },
+        },
+        {
+          label: 'DeepL API 키 입력...',
+          async click() {
+            const current = await ctx.getConfig();
+            const value = await prompt(
+              {
+                title: 'DeepL API 키',
+                label: 'DeepL API 키를 붙여 넣으세요 (무료 키는 ":fx"로 끝나요)',
+                value: current.deeplApiKey ?? '',
+                type: 'input',
+                inputAttrs: { type: 'text' },
+                ...promptOptions(),
+              },
+              ctx.window,
+            );
+
+            // 취소하면 null이라 아무것도 바꾸지 않는다
+            if (typeof value === 'string') {
+              ctx.setConfig({ deeplApiKey: value.trim() });
+            }
+          },
+        },
+        {
+          label: '남은 번역 한도 확인',
+          async click() {
+            const { deeplApiKey } = await ctx.getConfig();
+            const usage = await fetchUsage(deeplApiKey ?? '', ((url, init) => net.fetch(url, init)) as FetchLike);
+
+            await dialog.showMessageBox(ctx.window, {
+              type: 'info',
+              title: 'DeepL 번역 한도',
+              message: usage.ok
+                ? `이번 달 ${usage.used.toLocaleString()} / ${usage.limit.toLocaleString()} 글자 사용`
+                : translateErrorMessage(usage.error),
+              detail: usage.ok
+                ? `남은 글자: ${(usage.limit - usage.used).toLocaleString()} (노래 한 곡은 보통 1,500~3,000자)`
+                : undefined,
+            });
+          },
+        },
+      ],
     },
   ];
 };
