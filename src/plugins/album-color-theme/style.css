@@ -122,20 +122,26 @@ ytmusic-search-box[is-bauhaus-sidenav-enabled] {
       0 calc(var(--ytmusic-nav-bar-height, 90px) - var(--menu-bar-height, 0px)));
 }
 
-/* 스크롤바도 앨범 컬러 사용 */
-ytmusic-app-layout::-webkit-scrollbar-track {
-  background: rgba(var(--ytmusic-album-color-dark, 0, 0, 0), 0.35) !important;
+/*
+ * 스크롤바: 앨범 컬러 + 자동 숨김
+ * 평소에는 투명하게 숨겨 두고, 스크롤하거나 스크롤 가능한 영역 위에 마우스가 있을 때만
+ * (index.ts가 html에 pear-scrollbar-active 클래스를 잠깐 붙인다) 앨범 컬러로 서서히 나타난다.
+ * scrollbar-color는 상속되므로 html에만 정해 두고, 나머지 요소는 그 값을 따라가게 한다.
+ */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 400ms ease;
 }
 
-ytmusic-app-layout::-webkit-scrollbar-thumb {
-  background-color: color-mix(in srgb, rgb(var(--ytmusic-album-color, 126, 126, 126)) 60%, white) !important;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  background-clip: padding-box;
+:root.pear-scrollbar-active {
+  scrollbar-color:
+    color-mix(in srgb, rgb(var(--ytmusic-album-color, 126, 126, 126)) 60%, white) rgba(var(--ytmusic-album-color-dark, 0, 0, 0), 0.35);
 }
 
-ytmusic-app-layout::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, rgb(var(--ytmusic-album-color, 126, 126, 126)) 30%, white) !important;
+*:not(:root) {
+  scrollbar-color: inherit;
+  scrollbar-width: inherit;
 }
 
 /* 맨 위 제목줄(in-app-menu)도 상단바와 같은 앨범 컬러 사용 */

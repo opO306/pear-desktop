@@ -9,6 +9,8 @@ import style from './style.css?inline';
 const COLOR_KEY = '--ytmusic-album-color';
 const DARK_COLOR_KEY = '--ytmusic-album-color-dark';
 const RATIO_KEY = '--ytmusic-album-color-ratio';
+const SCROLLBAR_ACTIVE_CLASS = 'pear-scrollbar-active';
+const SCROLLBAR_HIDE_DELAY = 1200;
 
 type Config = {
   enabled: boolean;
@@ -26,6 +28,57 @@ type Renderer = {
   updateColor(alpha: number): void;
   onConfigChange(newConfig: Config): void;
 };
+
+/** 스크롤하거나 스크롤 가능한 영역 위에 마우스가 있을 때만 html에 클래스를 잠깐 붙인다 (CSS가 이 클래스로 스크롤바를 보여 줌) */
+const startAutoHideScrollbar = () => {
+  const root = document.documentElement;
+  let hideTimer: number | undefined;
+  let lastMove = 0;
+
+  const show = () => {
+    root.classList.add(SCROLLBAR_ACTIVE_CLASS);
+    window.clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(
+      () => root.classList.remove(SCROLLBAR_ACTIVE_CLASS),
+      SCROLLBAR_HIDE_DELAY,
+    );
+  };
+
+  const isScrollable = (target: EventTarget | null) => {
+    let el = target instanceof Element ? target : null;
+    while (el && el !== root) {
+      if (
+        el.scrollHeight > el.clientHeight + 1 &&
+        /auto|scroll/.test(getComputedStyle(el).overflowY)
+      ) {
+        return true;
+      }
+      el = el.parentElement;
+    }
+    return false;
+  };
+
+  const onMouseMove = (event: MouseEvent) => {
+    const now = performance.now();
+    if (now - lastMove < 150) return;
+    lastMove = now;
+
+    if (isScrollable(event.target)) show();
+  };
+
+  // scroll 이벤트는 버블링되지 않으므로 capture로 모든 스크롤 영역을 감지한다
+  document.addEventListener('scroll', show, true);
+  document.addEventListener('mousemove', onMouseMove, true);
+
+  return () => {
+    document.removeEventListener('scroll', show, true);
+    document.removeEventListener('mousemove', onMouseMove, true);
+    window.clearTimeout(hideTimer);
+    root.classList.remove(SCROLLBAR_ACTIVE_CLASS);
+  };
+};
+
+let stopAutoHideScrollbar: (() => void) | null = null;
 
 export default createPlugin({
   name: () => t('plugins.album-color-theme.name'),
@@ -95,6 +148,13 @@ export default createPlugin({
         '#mini-guide-background',
       );
       this.ytmusicAppLayout = document.querySelector<HTMLElement>('#layout');
+
+      stopAutoHideScrollbar?.();
+      stopAutoHideScrollbar = startAutoHideScrollbar();
+    },
+    stop() {
+      stopAutoHideScrollbar?.();
+      stopAutoHideScrollbar = null;
     },
     async onPlayerApiReady(playerApi, { getConfig }) {
       const config = await getConfig();
