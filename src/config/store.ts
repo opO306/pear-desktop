@@ -1,4 +1,5 @@
 import { defaultConfig as defaults } from './defaults';
+
 import type { SyncedLyricsPluginConfig } from '@/plugins/synced-lyrics/types';
 
 // HACK: electron-store is ESM, but rolldown has a bug that prevents it from being imported properly in CommonJS context, so we have to use require here

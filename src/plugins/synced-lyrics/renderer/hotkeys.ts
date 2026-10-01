@@ -82,7 +82,7 @@ export const startHotkeys = () => {
     if (event.altKey) {
       if (event.code === 'KeyL') {
         event.preventDefault();
-        void toggleLyricsOnly();
+        toggleLyricsOnly().catch((error) => console.error(error));
       }
       return;
     }

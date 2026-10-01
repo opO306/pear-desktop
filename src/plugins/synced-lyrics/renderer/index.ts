@@ -78,7 +78,7 @@ export const renderer = createRenderer<
       this.updateTimestampInterval = setInterval(
         () =>
           setCurrentTime(
-            (_ytAPI?.getCurrentTime() ?? 0) * 1000 - getOffsetMs(),
+            ((_ytAPI?.getCurrentTime() ?? 0) * 1000) - getOffsetMs(),
           ),
         100,
       );

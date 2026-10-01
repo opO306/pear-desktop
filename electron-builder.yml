@@ -7,8 +7,6 @@ files:
   - license
   - '!node_modules'
   - 'node_modules/custom-electron-prompt/**'
-  - 'node_modules/@ghostery/adblocker-electron-preload/**'
-  - 'node_modules/@ffmpeg.wasm/core-mt/**'
   - '!node_modules/**/*.map'
   - '!node_modules/**/*.ts'
 asarUnpack:
