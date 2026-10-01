@@ -14,7 +14,6 @@ const enabledPlugins = new Set([
   'shortcuts',
   'discord',
   'synced-lyrics',
-  'performance-improvement',
   'album-color-theme',
   'in-app-menu',
 ]);
