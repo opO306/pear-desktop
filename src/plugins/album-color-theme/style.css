@@ -106,6 +106,38 @@ ytmusic-search-box[is-bauhaus-sidenav-enabled] {
   background: var(--ytmusic-background) !important;
 }
 
+/*
+ * 사이드바 윗부분이 상단바 배경에 가려지는 문제 수정
+ * 제목줄(in-app-menu)이 생기면 상단바가 제목줄 높이만큼 내려오는데 사이드바 위치는 그대로라서,
+ * 불투명한 상단바 배경이 사이드바 윗부분을 덮는다.
+ * 상단바 배경에서 왼쪽 사이드바 구역(240px)의 아랫부분만 비워서 사이드바가 온전히 보이게 한다.
+ * (제목줄이 없을 때는 --menu-bar-height가 없어서 잘라내는 영역이 없다)
+ */
+#nav-bar-background.ytmusic-app-layout {
+  clip-path: polygon(0 0,
+      100% 0,
+      100% 100%,
+      240px 100%,
+      240px calc(var(--ytmusic-nav-bar-height, 90px) - var(--menu-bar-height, 0px)),
+      0 calc(var(--ytmusic-nav-bar-height, 90px) - var(--menu-bar-height, 0px)));
+}
+
+/* 스크롤바도 앨범 컬러 사용 */
+ytmusic-app-layout::-webkit-scrollbar-track {
+  background: rgba(var(--ytmusic-album-color-dark, 0, 0, 0), 0.35) !important;
+}
+
+ytmusic-app-layout::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, rgb(var(--ytmusic-album-color, 126, 126, 126)) 60%, white) !important;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+
+ytmusic-app-layout::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, rgb(var(--ytmusic-album-color, 126, 126, 126)) 30%, white) !important;
+}
+
 /* 맨 위 제목줄(in-app-menu)도 상단바와 같은 앨범 컬러 사용 */
 :root {
   --titlebar-background-color: var(--ytmusic-background) !important;
