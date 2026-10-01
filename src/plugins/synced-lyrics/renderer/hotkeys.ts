@@ -3,6 +3,8 @@ import { selectors } from './utils';
 
 const OFFSET_STEP_MS = 500;
 const LYRICS_ONLY_CLASS = 'pear-lyrics-only';
+const SIDEBAR_HIDDEN_CLASS = 'pear-sidebar-hidden';
+const SIDEBAR_STORAGE_KEY = 'synced-lyrics:sidebar-hidden';
 const TOAST_ID = 'pear-lyrics-toast';
 const TOAST_DURATION = 1500;
 
@@ -35,6 +37,28 @@ const describeOffset = (ms: number) =>
 const isTyping = (target: EventTarget | undefined) =>
   target instanceof HTMLElement &&
   (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+
+const readSidebarHidden = () => {
+  try {
+    return localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+/** 왼쪽 사이드바(홈/둘러보기/보관함)를 숨기거나 보인다. 선택은 저장돼서 재시작해도 유지된다 */
+const toggleSidebar = () => {
+  const hidden = !document.body.classList.contains(SIDEBAR_HIDDEN_CLASS);
+  document.body.classList.toggle(SIDEBAR_HIDDEN_CLASS, hidden);
+
+  try {
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, hidden ? '1' : '0');
+  } catch {
+    // 저장 실패해도 이번 실행에서는 유지된다
+  }
+
+  showToast(hidden ? '사이드바 숨김 (Alt+S로 다시 표시)' : '사이드바 표시');
+};
 
 /** 최대 tries번(100ms 간격) 기다린다. 끝까지 없으면 null (무한히 돌지 않는다) */
 const waitFor = async <T extends Element>(selector: string, tries = 30) => {
@@ -73,6 +97,7 @@ const toggleLyricsOnly = async () => {
  * 단축키
  *  - [ / ] : 가사를 0.5초 일찍 / 늦게,  \ : 싱크 초기화 (곡별로 저장됨)
  *  - Alt+L : 가사 전용 모드 켜기/끄기
+ *  - Alt+S : 왼쪽 사이드바 숨기기/보이기 (가사 줄이 덜 줄바꿈되게 공간 확보)
  *  - T : 가사 번역 켜기/끄기
  */
 export const startHotkeys = (options: { onToggleTranslate: () => void }) => {
@@ -84,6 +109,9 @@ export const startHotkeys = (options: { onToggleTranslate: () => void }) => {
       if (event.code === 'KeyL') {
         event.preventDefault();
         toggleLyricsOnly().catch((error) => console.error(error));
+      } else if (event.code === 'KeyS') {
+        event.preventDefault();
+        toggleSidebar();
       }
       return;
     }
@@ -112,10 +140,12 @@ export const startHotkeys = (options: { onToggleTranslate: () => void }) => {
 
   document.addEventListener('keydown', onKeyDown, true);
 
+  document.body.classList.toggle(SIDEBAR_HIDDEN_CLASS, readSidebarHidden());
+
   return () => {
     document.removeEventListener('keydown', onKeyDown, true);
     window.clearTimeout(toastTimer);
     document.getElementById(TOAST_ID)?.remove();
-    document.body.classList.remove(LYRICS_ONLY_CLASS);
+    document.body.classList.remove(LYRICS_ONLY_CLASS, SIDEBAR_HIDDEN_CLASS);
   };
 };

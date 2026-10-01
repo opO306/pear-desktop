@@ -374,3 +374,15 @@ body.pear-lyrics-only .text-lyrics {
 .pear-translate-button.active {
   color: #fff;
 }
+
+/*
+ * 사이드바 숨기기 (Alt+S)
+ * 사이드바(홈/둘러보기/보관함)와, 본문이 그 폭만큼 비켜 있도록 자리를 차지하던 빈 칸(spacer)을 함께 없앤다.
+ */
+body.pear-sidebar-hidden #mini-guide-background,
+body.pear-sidebar-hidden #mini-guide,
+body.pear-sidebar-hidden #mini-guide-spacer,
+body.pear-sidebar-hidden #guide-spacer,
+body.pear-sidebar-hidden #guide-wrapper {
+  display: none !important;
+}
