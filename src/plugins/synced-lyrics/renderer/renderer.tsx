@@ -103,7 +103,7 @@ runWithOwner(reactiveOwner, () => {
       case 'focus':
         root.style.setProperty(
           '--lyrics-font-size',
-          'clamp(1.4rem, 1.1vmax, 3rem)',
+          'clamp(2rem, 1.6vmax, 3.5rem)',
         );
         root.style.setProperty(
           '--lyrics-line-height',

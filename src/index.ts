@@ -138,14 +138,26 @@ if (is.linux()) {
     'com.github.th-ch.\u0079\u006f\u0075\u0074\u0075\u0062\u0065\u002d\u006d\u0075\u0073\u0069\u0063',
   );
 }
-// PEAR_NO_ANGLE=1 이면 아래 그래픽 설정을 건너뛴다 (CPU/GPU 비교 테스트용)
-if (
-  is.windows() &&
-  !disableHardwareAcceleration &&
-  !process.env.PEAR_NO_ANGLE
-) {
-  app.commandLine.appendSwitch('use-gl', 'angle');
-  app.commandLine.appendSwitch('use-angle', 'gl');
+// 윈도우 그래픽 설정 (CPU/GPU 비교 테스트용 환경 변수)
+//  - PEAR_NO_ANGLE=1 : 아래 기본 ANGLE 설정을 건너뛴다
+//  - PEAR_FLAGS="--use-angle=d3d11 --disable-direct-composition" : 기본 설정 대신 이 스위치들을 사용한다
+if (is.windows() && !disableHardwareAcceleration) {
+  if (process.env.PEAR_FLAGS) {
+    for (const flag of process.env.PEAR_FLAGS.split(/\s+/).filter(Boolean)) {
+      const [name, ...rest] = flag.replace(/^--/, '').split('=');
+      const value = rest.join('=');
+      if (name === 'disable-features') {
+        disabledFeatures.push(...value.split(','));
+      } else if (value) {
+        app.commandLine.appendSwitch(name, value);
+      } else {
+        app.commandLine.appendSwitch(name);
+      }
+    }
+  } else if (!process.env.PEAR_NO_ANGLE) {
+    app.commandLine.appendSwitch('use-gl', 'angle');
+    app.commandLine.appendSwitch('use-angle', 'gl');
+  }
 }
 if (disableHardwareAcceleration) {
   if (is.dev()) console.log('Disabling hardware acceleration');
