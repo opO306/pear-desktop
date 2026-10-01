@@ -113,8 +113,8 @@ runWithOwner(reactiveOwner, () => {
         root.style.setProperty('--lyrics-padding', '0');
         root.style.setProperty('--lyrics-animations', 'none');
 
-        root.style.setProperty('--lyrics-inactive-font-weight', '400');
-        root.style.setProperty('--lyrics-inactive-opacity', '0.33');
+        root.style.setProperty('--lyrics-inactive-font-weight', '500');
+        root.style.setProperty('--lyrics-inactive-opacity', '0.5');
         root.style.setProperty('--lyrics-inactive-scale', '1');
         root.style.setProperty('--lyrics-inactive-offset', '0');
 

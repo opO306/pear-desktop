@@ -11,6 +11,22 @@ import type { SongInfo } from '@/providers/song-info';
 import type { RendererContext } from '@/types/contexts';
 import type { MusicPlayer } from '@/types/music-player';
 
+const LYRICS_FONT_LINK_ID = 'synced-lyrics-font';
+const LYRICS_FONT_URL =
+  'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css';
+
+// 플러그인 스타일은 CSSStyleSheet.replaceSync로 붙어서 @import가 무시되므로, 글꼴은 <link>로 불러온다
+const loadLyricsFont = () => {
+  if (document.getElementById(LYRICS_FONT_LINK_ID)) return;
+
+  const link = Object.assign(document.createElement('link'), {
+    id: LYRICS_FONT_LINK_ID,
+    rel: 'stylesheet',
+    href: LYRICS_FONT_URL,
+  });
+  document.head.appendChild(link);
+};
+
 export let _ytAPI: MusicPlayer | null = null;
 export let netFetch: (
   url: string,
@@ -78,6 +94,8 @@ export const renderer = createRenderer<
   async start(ctx: RendererContext<SyncedLyricsPluginConfig>) {
     netFetch = ctx.ipc.invoke.bind(ctx.ipc, 'synced-lyrics:fetch');
 
+    loadLyricsFont();
+
     setConfig(await ctx.getConfig());
 
     ctx.ipc.on('peard:update-song-info', (info: SongInfo) => {
@@ -86,6 +104,7 @@ export const renderer = createRenderer<
   },
 
   stop() {
+    document.getElementById(LYRICS_FONT_LINK_ID)?.remove();
     disposeReactiveRoot();
   },
 });

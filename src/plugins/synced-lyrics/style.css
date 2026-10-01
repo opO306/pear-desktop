@@ -28,7 +28,7 @@
 
   /* Typography */
   --lyrics-font-family:
-    Satoshi, Avenir, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Pretendard, Satoshi, Avenir, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
     Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
   --lyrics-font-size: clamp(1.4rem, 1.1vmax, 3rem);
   --lyrics-line-height: var(--ytmusic-body-line-height);
@@ -149,6 +149,26 @@
 .current .text-lyrics > span > span {
   opacity: var(--lyrics-active-opacity);
   animation: var(--lyrics-animations);
+}
+
+/*
+ * 가사 글자 모양 (효과 없이 굵기/선명도/줄바꿈만)
+ * - 지나간 줄은 더 흐리게, 곧 나올 줄은 조금 더 선명하게 해서 "지금 → 다음" 흐름이 보이게 한다
+ * - 한글은 단어 중간에서 줄이 바뀌지 않게 하고, 마지막 줄에 한 단어만 남는 것을 막는다
+ */
+.synced-line.previous .text-lyrics > span > span {
+  opacity: 0.28;
+}
+
+.synced-line.upcoming .text-lyrics > span > span {
+  opacity: 0.55;
+}
+
+.text-lyrics {
+  letter-spacing: -0.012em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 .lyrics-renderer {
