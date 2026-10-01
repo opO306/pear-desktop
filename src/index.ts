@@ -779,6 +779,20 @@ app.whenReady().then(async () => {
   await refreshMenu(mainWindow);
   setUpTray(app, mainWindow);
 
+  // PEAR_METRICS=1 로 실행하면 5초마다 프로세스별 CPU 사용량을 터미널에 출력한다 (CPU 원인 진단용)
+  if (process.env.PEAR_METRICS) {
+    setInterval(() => {
+      const line = app
+        .getAppMetrics()
+        .map(
+          (m) =>
+            `${m.name ?? m.type}[${m.type}] ${m.cpu.percentCPUUsage.toFixed(1)}%`,
+        )
+        .join(' | ');
+      console.log(LoggerPrefix, 'CPU', line);
+    }, 5000);
+  }
+
   setupProtocolHandler(mainWindow);
 
   app.on('second-instance', (_, commandLine) => {
